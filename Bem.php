@@ -15,7 +15,7 @@ class Bem
     protected static $_bundleName = 'index';
     protected static $_host = 'localhost';
     protected static $_port = '3333';
-    protected static $_bundleSufix = '.bundle';
+    protected static $_bundleSufix = '.bundles';
 
     public static function setBundleRoot($path)
     {
