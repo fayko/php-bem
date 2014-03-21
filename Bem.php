@@ -41,36 +41,59 @@ class Bem
     final private function __clone ()
     {}
 
+    /**
+     * @param $path
+     * @return $this
+     */
     public function setBundleRoot($path)
     {
         self::$_bundleRootPath = $path;
+        return $this;
     }
 
+    /**
+     * @param $bundle
+     * @param string $bundleName
+     * @return $this
+     */
     public function setBundle($bundle, $bundleName = 'index')
     {
         self::$_bundle = $bundle;
         self::$_bundleName = $bundleName;
         self::$_bundlePath = self::$_bundleRootPath . '/' . $bundle . self::$_bundleSufix .'/' . $bundleName;
 
+        return $this;
     }
 
+    /**
+     * @param $host
+     * @return $this
+     */
     public function setHost($host)
     {
-        self::$_host = $host;
+        self::$_host = (string)$host;
+        return $this;
     }
 
+    /**
+     * @param $port
+     * @return $this
+     */
     public function setPort($port)
     {
-        self::$_port = $port;
+        self::$_port = (int)$port;
+        return $this;
     }
 
     /**
      * @param string $key
      * @param mixed $data
+     * @return $this
      */
     public function set($key, $data)
     {
         self::$_data[$key] = $data;
+        return $this;
     }
 
     /**
