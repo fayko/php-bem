@@ -9,15 +9,36 @@
 class Bem
 {
     protected static $_data = array();
-    protected static $_bundlePath = 'desktop.bundles/index';
+    protected static $_bundleRootPath = '';
+    protected static $_bundlePath = '';
+    protected static $_bundle = 'desktop';
     protected static $_bundleName = 'index';
+    protected static $_host = 'localhost';
+    protected static $_port = '3333';
+    protected static $_bundleSufix = '.bundle';
 
-    public static function setBundle($bundlePath = 'desktop.bundles/index', $bundleName = 'index')
+    public static function setBundleRoot($path)
     {
-        self::$_bundlePath = $bundlePath;
-        self::$_bundleName = $bundleName;
+        self::$_bundleRootPath = $path;
     }
 
+    public static function setBundle($bundle, $bundleName = 'index')
+    {
+        self::$_bundle = $bundle;
+        self::$_bundleName = $bundleName;
+        self::$_bundlePath = self::$_bundleRootPath . '/' . $bundle . self::$_bundleSufix .'/' . $bundleName;
+
+    }
+
+    public static function setHost($host)
+    {
+        self::$_host = $host;
+    }
+
+    public static function setPort($port)
+    {
+        self::$_port = $port;
+    }
 
     /**
      * @param string $key
@@ -59,10 +80,26 @@ class Bem
         return self::$_data;
     }
 
+    public static function getBundlePath()
+    {
+        return self::$_bundlePath;
+    }
+
+    public static function getBundleName()
+    {
+        return self::$_bundle . self::$_bundleSufix . '/' . self::$_bundleName;
+    }
+
+    public static function getFullAddress()
+    {
+        return 'http://' . self::$_host . ':' . self::$_port . '/' . ltrim(self::getBundlePath(), '/');
+    }
+
+
     public static function send()
     {
-        $client = new \Zend_Http_Client('http://localhost:3333/' . self::$_bundlePath);
-        self::set('bundle', array('name' => self::$_bundleName, 'path' => self::$_bundlePath));
+        $client = new \Zend_Http_Client(self::getFullAddress());
+        self::set('bundle', array('name' => self::getBundleName(), 'path' => self::getBundlePath()));
         $client->setParameterPost(self::$_data);
         $response = $client->request('POST');
         return $response->getBody();
