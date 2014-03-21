@@ -8,6 +8,8 @@
 
 class Bem
 {
+    private static $_instances = array();
+
     protected static $_data = array();
     protected static $_bundleRootPath = '';
     protected static $_bundlePath = '';
@@ -17,12 +19,34 @@ class Bem
     protected static $_port = '3333';
     protected static $_bundleSufix = '.bundles';
 
-    public static function setBundleRoot($path)
+    /**
+     * @return Bem
+     */
+    public static function getInstance()
+    {
+        // Get name of current class
+        $sClassName = get_called_class();
+
+        // Create new instance if necessary
+        if (! isset(self::$_instances[$sClassName])) {
+            self::$_instances[$sClassName] = new $sClassName();
+        }
+
+        return self::$_instances[$sClassName];
+    }
+
+    /**
+     * Private final clone method
+     */
+    final private function __clone ()
+    {}
+
+    public function setBundleRoot($path)
     {
         self::$_bundleRootPath = $path;
     }
 
-    public static function setBundle($bundle, $bundleName = 'index')
+    public function setBundle($bundle, $bundleName = 'index')
     {
         self::$_bundle = $bundle;
         self::$_bundleName = $bundleName;
@@ -30,12 +54,12 @@ class Bem
 
     }
 
-    public static function setHost($host)
+    public function setHost($host)
     {
         self::$_host = $host;
     }
 
-    public static function setPort($port)
+    public function setPort($port)
     {
         self::$_port = $port;
     }
@@ -44,7 +68,7 @@ class Bem
      * @param string $key
      * @param mixed $data
      */
-    public static function set($key, $data)
+    public function set($key, $data)
     {
         self::$_data[$key] = $data;
     }
@@ -53,7 +77,7 @@ class Bem
      * @param string $key
      * @return bool|mixed
      */
-    public static function get($key)
+    public function get($key)
     {
         if(isset(self::$_data[$key])) {
             return self::$_data[$key];
@@ -66,7 +90,7 @@ class Bem
      * @param $key
      * @return bool
      */
-    public static function is($key)
+    public function is($key)
     {
         if(isset(self::$_data[$key])) {
             return true;
@@ -75,28 +99,28 @@ class Bem
         }
     }
 
-    public static function getData()
+    public function getData()
     {
         return self::$_data;
     }
 
-    public static function getBundlePath()
+    public function getBundlePath()
     {
         return self::$_bundlePath;
     }
 
-    public static function getBundleName()
+    public function getBundleName()
     {
         return self::$_bundle . self::$_bundleSufix . '/' . self::$_bundleName;
     }
 
-    public static function getFullAddress()
+    public function getFullAddress()
     {
         return 'http://' . self::$_host . ':' . self::$_port . '/' . ltrim(self::getBundlePath(), '/');
     }
 
 
-    public static function send()
+    public function send()
     {
         $client = new \Zend_Http_Client(self::getFullAddress());
         self::set('bundle', array('name' => self::getBundleName(), 'path' => self::getBundlePath()));
