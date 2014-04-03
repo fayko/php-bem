@@ -147,7 +147,8 @@ class Bem
     {
         $client = new \Zend_Http_Client(self::getFullAddress());
         self::set('bundle', array('name' => self::getBundleName(), 'path' => self::getBundlePath()));
-        $client->setParameterPost(self::$_data);
+        $json = Zend_Json::encode(self::$_data);
+        $client->setParameterPost(array('json_data' => $json));
         $response = $client->request('POST');
         return $response->getBody();
     }
