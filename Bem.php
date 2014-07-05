@@ -18,7 +18,7 @@ class Bem
     protected static $_host = 'localhost';
     protected static $_port = '3333';
     protected static $_bundleSuffix = '.bundles';
-
+    protected static $_publicPath = '';
 
     /**
      * @return Bem
@@ -83,6 +83,12 @@ class Bem
     public function setPort($port)
     {
         self::$_port = (int)$port;
+        return $this;
+    }
+
+    public function setPublicPath($path)
+    {
+        self::$_publicPath = $path;
         return $this;
     }
 
@@ -153,6 +159,20 @@ class Bem
         return 'http://' . self::$_host . ':' . self::$_port . '/' . ltrim(self::getBundlePath(), '/');
     }
 
+    public function getResourceLink($extension)
+    {
+        return self::$_publicPath .'/' . $this->getBundleName() . '/_' . self::$_bundleName . '.' . $extension;
+    }
+
+    public function getCssLink()
+    {
+        return $this->getResourceLink('css');
+    }
+
+    public function getJsLink()
+    {
+        return $this->getResourceLink('js');
+    }
 
     public function send()
     {
