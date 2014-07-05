@@ -97,12 +97,12 @@ class Bem
         return $this;
     }
 
-    public function addBlock($name, $block, $params = array())
+    public function addBlock($name, $params = array())
     {
         if(!isset(self::$_data['blocks'])) {
             self::$_data['blocks'] = array();
         }
-        $params['block'] = $block;
+
         self::$_data['blocks'][$name] = $params;
         return $this;
     }
