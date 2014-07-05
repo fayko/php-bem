@@ -17,7 +17,8 @@ class Bem
     protected static $_bundleName = 'index';
     protected static $_host = 'localhost';
     protected static $_port = '3333';
-    protected static $_bundleSufix = '.bundles';
+    protected static $_bundleSuffix = '.bundles';
+
 
     /**
      * @return Bem
@@ -60,7 +61,7 @@ class Bem
     {
         self::$_bundle = $bundle;
         self::$_bundleName = $bundleName;
-        self::$_bundlePath = self::$_bundleRootPath . '/' . $bundle . self::$_bundleSufix .'/' . $bundleName;
+        self::$_bundlePath = self::$_bundleRootPath . '/' . $bundle . self::$_bundleSuffix .'/' . $bundleName;
 
         return $this;
     }
@@ -93,6 +94,16 @@ class Bem
     public function set($key, $data)
     {
         self::$_data[$key] = $data;
+        return $this;
+    }
+
+    public function addBlock($name, $block, $params = array())
+    {
+        if(!isset(self::$_data['blocks'])) {
+            self::$_data['blocks'] = array();
+        }
+        $params['block'] = $block;
+        self::$_data['blocks'][$name] = $params;
         return $this;
     }
 
@@ -134,7 +145,7 @@ class Bem
 
     public function getBundleName()
     {
-        return self::$_bundle . self::$_bundleSufix . '/' . self::$_bundleName;
+        return self::$_bundle . self::$_bundleSuffix . '/' . self::$_bundleName;
     }
 
     public function getFullAddress()
@@ -150,7 +161,13 @@ class Bem
         $json = Zend_Json::encode(self::$_data);
         $client->setParameterPost(array('json_data' => $json));
         $response = $client->request('POST');
-        return $response->getBody();
+        $content = $response->getBody();
+
+        if($response->getHeader('Content-Type') == 'application/json') {
+            $content = Zend_Json::decode($content);
+        }
+
+        return $content;
     }
 
 }
