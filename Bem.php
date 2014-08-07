@@ -103,6 +103,20 @@ class Bem
         return $this;
     }
 
+    /**
+     * @param string $key
+     * @param mixed $data
+     * @return $this
+     */
+    public function setGlobal($key, $data)
+    {
+        if(!isset(self::$_data['globals'])) {
+            self::$_data['globals'] = array();
+        }
+        self::$_data['globals'][$key] = $data;
+        return $this;
+    }
+
     public function addBlock($name, $params = array())
     {
         if(!isset(self::$_data['blocks'])) {
