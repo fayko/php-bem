@@ -20,6 +20,8 @@ class Bem
     protected static $_bundleSuffix = '.bundles';
     protected static $_publicPath = '';
 
+    protected $_multiCurlResponse = array();
+
     /**
      * @return Bem
      */
@@ -203,5 +205,65 @@ class Bem
 
         return $content;
     }
+
+    /**
+     * Отправить параллельно несколько запросов к ноде
+     * @param array $requestList массив запросов - в каждом должна быть
+     *    data - отправляемы данные,
+     *    key_in_response - какой будет ключ в массиве ответов,
+     *    port - не обязательный параметр - на какой порт отправлять запрос,
+     * @return array
+     */
+
+    public function multiSend($requestList)
+    {
+        $curlOpts = array(
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_SSL_VERIFYPEER => false,
+            //Заголовок, чтобы избежать промежутного ответа с кодом 100
+            CURLOPT_HTTPHEADER     => array('Expect:'),
+            CURLOPT_POST           => true
+        );
+
+
+        $curl = new Bem_Curl_Multi();
+        self::set('bundle', array('name' => self::getBundleName(), 'path' => self::getBundlePath()));
+
+        foreach ($requestList as $request) {
+            $this->set('page', $request['data']);
+            if (!empty($request['port'])) {
+                $this->setPort($request['port']);
+            }
+            $json = Zend_Json::encode(self::$_data);
+            $curlOpts[CURLOPT_POSTFIELDS] = array('json_data' => urlencode($json));
+            $curl->addTread(self::getFullAddress(), array($this, '_parseMultiCurlResponse'), array('key_in_response' => $request['key_in_response']), $curlOpts);
+        }
+        $curl->request();
+        return $this->_getMultiCurlResponse();
+    }
+
+    /**
+     * Это колбек, который вызывается при возврате одного из ответа мульти курл запроса
+     * @param Bem_Curl $curl
+     * @param $url
+     * @param $keyInResponse
+     */
+    public function _parseMultiCurlResponse(Bem_Curl $curl, $url, $keyInResponse)
+    {
+        $content = $curl->getBody();
+        if ($curl->getHeader('Content-Type') == 'application/json') {
+            $content = Zend_Json::decode($content);
+        }
+        $this->_multiCurlResponse[$keyInResponse] = $content;
+    }
+
+    private function _getMultiCurlResponse()
+    {
+        return $this->_multiCurlResponse;
+    }
+
+
+
+
 
 }
